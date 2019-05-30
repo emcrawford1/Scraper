@@ -1,6 +1,6 @@
 //Exporting an object that contains the models
 
-module.epxorts = {
+module.exports = {
   Article: require("./Article"),
   Comment: require("./Comment")
 };

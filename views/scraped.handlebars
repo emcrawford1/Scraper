@@ -1,0 +1,26 @@
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12 text-center">
+        <h1>Stories</h1>
+      </div>
+      <div class="col-12">
+        <div class="card articleCard">
+          <div class="card-header">
+            Stories Scraped from Fox News.
+          </div>
+          <div class="card-body" id="scrapedArticles">
+
+            <ul>
+              {{#each article}}
+              {{> articles/article-block}}
+              {{/each}}
+            </ul>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+

@@ -1,15 +1,10 @@
-let mongoose = require("mongoose");
+const mongoose = require("mongoose");
 
-let Schema = mongoose.Schema;
+const Schema = mongoose.Schema;
 
-let ArticleSchema = new Shema({
+const ArticleSchema = new Schema({
 
   title: {
-    type: String,
-    required: true
-  },
-
-  summary: {
     type: String,
     required: true
   },
@@ -19,14 +14,15 @@ let ArticleSchema = new Shema({
     required: true
   },
 
-  comment: {
-    type: Schema.Types.ObjectId,
-    ref: "Comment"
-  }
-
+  comments: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Comment"
+    }
+  ]
 });
 
-var Article = mongoose.model("Article", ArticleSchema);
+const Article = mongoose.model("Article", ArticleSchema);
 
 module.exports = Article;
 
