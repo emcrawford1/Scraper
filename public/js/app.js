@@ -7,13 +7,27 @@ $(document).ready(function(){
 
   $("#homeBtn").on("click", function(event){
     window.location.href ="/";
+  });
+
+  $(".saveBtn").on("click", function(event){
+    let $saveBtn = $(this);
+    let savedArticle = {};
+
+    savedArticle.title = $saveBtn.attr("data-title");
+    savedArticle.url = $saveBtn.attr("data-url");
+
+    $.post("/save", savedArticle, function(data){
+      console.log("Added " + data);
+      $saveBtn.prop('disabled', true);
+    });
+  });
+
+  $("#savedStoriesBtn").on("click", function(event){
+    window.location.href = "/articles";
+  });
+
+  $(".deleteBtn").on("click", function(event) {
+
   })
 });
 
-// $jq.post("/api/comment", newComment, function(data) {
-//   console.log("Added " + data);
-//   console.log("Just finished Ajax request");
-//   location.reload(true);
-//   $formData.text("");
-// });
-// });
