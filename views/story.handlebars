@@ -1,0 +1,39 @@
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12 text-center">
+        <h1>Your Story</h1>
+      </div>
+      <div class="col-12">
+        <div class="card articleCard">
+          <div class="card-header">
+            Click the story to go to the link. See the comments below.
+          </div>
+          <div class="card-body" id="scrapedArticles">
+
+            <tr>
+              {{#each article}}
+              {{> story/story-block}}
+              {{/each}}
+            </tr>
+
+            <tr> <h2>Comments:</h2>
+              {{#each article.comments}}
+              {{> story/comment-block}}
+              {{/each}}
+            </tr>
+            
+            <form id="commentForm">
+              <div class="form">
+                <label for="commentForm"><h3>Add a Comment:</h3></label>
+                <textarea class="form-control" id="commentBox" rows="3"></textarea>
+                <button type="submit" class="btn btn-outline-primary">Submit</button>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>

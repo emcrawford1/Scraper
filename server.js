@@ -32,9 +32,7 @@ app.use(express.static("public"));
 
 mongoose.connect("mongodb://localhost/scraper", { useNewUrlParser: true});
 
-app.get("/", function(req, res){
-  res.render("dashboard");
-});
+app.get("/", (req, res) => res.render("dashboard"));
 
 //Scraping news site for articles with our friend "axios"
 app.get("/scrape", function(req, res) {
@@ -58,14 +56,6 @@ app.get("/scrape", function(req, res) {
 
       //The "current" result object is pushed into the scrapedStories array so that it can be displayed in handlebars
       scrapedStories.push(result);
-
-      //Saving stories in mongodb
-      // db.Article.create(result).then(function(dbArticle) {
-      //   console.log(dbArticle);
-      // })
-      // .catch(function(err) {
-      //   console.log(err);
-      // });
     });
 
     //Render "Scraped" handlebars page.  
@@ -75,7 +65,7 @@ app.get("/scrape", function(req, res) {
 
 
 //Saving article to mongodb
-app.post("/save", function(req, res){
+app.post("/save", (req, res) => {
   console.log(req.body);
   
   const articleData = {};
@@ -83,30 +73,92 @@ app.post("/save", function(req, res){
   articleData.title = req.body.title;
   articleData.url = req.body.url;
 
-  db.Article.create(articleData).then(function(dbArticle) {
-  
-    console.log(dbArticle);
-    res.json(dbArticle);
-  })
-  .catch(function(err){
-    console.log(err);
-  });
+  db.Article.create(articleData)
+  .then( dbArticle => res.json(dbArticle))
+  .catch(err => console.log(err));
 });
 
+
+app.post("/comment", (req, res) => {
+  const comment = req.body;
+  
+  console.log(comment.storyId);
+  db.Comment.create(comment)
+  .then(function(response) {
+    console.log(comment.storyId);
+    db.Article.findOneAndUpdate({_id: comment.storyId}, {$push: {comments: response._id}}, {new: true})
+    .then(data => res.json(data));
+  })
+  .then(data => console.log(data))
+  .catch(err => console.log(err))
+
+});
+
+
+// app.post("/comment", (req, res) => {
+//   const comment = req.body;
+  
+//   console.log(comment.storyId);
+//   db.Comment.create(comment)
+//   .then(function(response) {
+//     db.Article.findOneAndUpdate({_id: comment.storyId}, {comments: response._id}, {new: true})})
+//   .then(data => console.log(data))
+//   .catch(err => console.log(err))
+
+// });
+
+//return db.Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
 //Get saved articles
-app.get("/articles", function(req, res) { 
+app.get("/articles", (req, res) => { 
 
   db.Article.find({})
-  .then(function(dbArticle){
-    console.log(dbArticle);
-    res.render("saved", {article: dbArticle});
-  })
-  .catch(function(err) { 
-    res.json(err);
-  });
+  .then(dbArticle => res.render("saved", {article: dbArticle}))
+  .catch(err => res.json(err));
 });
 
+//Get specific story
+app.get("/stories/:id", (req, res) => {
+  const id = req.params.id;
+  db.Article.findOne({ _id: id})
+  .populate('comments')
+  .then(function(dbArticle){
+    console.log(dbArticle);
+    res.render("story", {article: dbArticle})})
+  .catch(err => res.json(err))
+});
 
+app.delete("/api/comments/delete/:commentId/:storyId", (req, res) => {
+  const commentId = req.params.commentId;
+  const storyId = req.params.storyId;
+
+  db.Comment.deleteOne({_id: commentId})
+  .then(function(data) {
+    db.Article.update({_id: storyId}, {$pullAll: {_id: [commentId]}})
+    .then(dbArticle => res.json(dbArticle))
+    .catch(err => res.json(err))
+  })
+  .catch(err => res.json(err));
+})
+
+//Delete saved article
+app.delete("/api/stories/:id", (req, res) => {
+  const id = req.params.id;
+  db.Article.deleteOne({ _id: id})
+.then(dbArticle => res.json(dbArticle))
+.catch(err => res.json(err))
+});
+
+//Delete a saved story
+// app.delete("/api/posts/:id", function(req, res) {
+//   db.Post.destroy({
+//     where: {
+//       id: req.params.id
+//     }
+//   })
+//     .then(function(dbPost) {
+//       res.json(dbPost);
+//     });
+// });
 
 // // Route for grabbing a specific Article by id, populate it with it's note
 // app.get("/articles/:id", function(req, res) {
@@ -146,6 +198,4 @@ app.get("/articles", function(req, res) {
 
 
 //Start server
-app.listen(PORT, function() {
-  console.log("App running on port " + PORT + "!");
-});
+app.listen(PORT, () => console.log("App running on port " + PORT + "!"));
